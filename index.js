@@ -1,3 +1,3 @@
-Module.exports={
+module.exports={
   Promise:require('./src/promise')
 }

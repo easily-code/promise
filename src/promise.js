@@ -1,27 +1,34 @@
-function Promise(f) {
-  this.f=f;
-  this.q=[];
-  this.s=0;
+function Promise(fn) {
+  this.main=fn;
+  this.pqueue=[];
+  this.open=false;
 }
+
 Promise.prototype.then = function (s,f) {
+  var me=this;
   var suc=function (data) {
     var p=s(data);
-    var {s,f}=this.queue.shift();
-    p&&p.f(f);
+    if (p) {
+      var {suc,fai}=me.pqueue.shift();
+      p.main(suc,fai);
+    }
   };
   var fai=function (err) {
     var p=f(err);
-    var {s,f}=this.queue.shift();
-    p&&p.f(f);
+    if (p) {
+      var {suc,fai}=me.queue.shift();
+      p.main(suc,fai);
+    }
   };
-  if (this.s) {
-    this.q.push({suc,fai});
-    return;
+  if (!this.open) {
+    this.open=true;
+
+    process.nextTick(function () {
+      me.main(suc,fai);
+    });
+    return this;
   }
-  this.s++;
-  process.nextTick(function () {
-    this.fn(suc,fai);
-  })
+  this.pqueue.push({suc,fai});
   return this;
 };
-Module.exports=Promise;
+module.exports=Promise;
