@@ -1,6 +1,4 @@
-const fs = require('fs');
-const {Promise} = require('../index');
-
+const {readFile,writeFile} = require('../lib/fspromise');
 
 function err(e) {
   console.log(e);
